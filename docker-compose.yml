@@ -1,0 +1,47 @@
+# =============================================================================
+# docker-compose.yml  -  START THE APP AND ITS DATABASE WITH ONE COMMAND
+# =============================================================================
+# Run:   docker compose up --build
+# Stop:  docker compose down            (add -v to also delete the database data)
+#
+# It starts two containers:
+#   db    a PostgreSQL database
+#   app   our FastAPI + MCP application
+#
+# Before the first start, copy .env.example to .env and set SECRET_KEY.
+# Read more: docs/12-deployment.md
+# =============================================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: uptime
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uptime}
+      POSTGRES_DB: uptime
+    volumes:
+      # Keeps the data when the container is restarted.
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      # The app container waits until this succeeds.
+      test: ["CMD-SHELL", "pg_isready -U uptime"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: production
+      # "db" is the name of the database container above.
+      DATABASE_URL: postgresql+asyncpg://uptime:${POSTGRES_PASSWORD:-uptime}@db:5432/uptime
+      # The ":?" makes docker compose stop with a message if SECRET_KEY is missing.
+      SECRET_KEY: ${SECRET_KEY:?Please set SECRET_KEY in your .env file}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

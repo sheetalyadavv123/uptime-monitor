@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Secrets and local data: never commit these
+.env
+*.db
+
+# Secrets / local env (never commit)
+.env.*
+!.env.example
+*.pem
+*.key
+*.sqlite
+*.sqlite3

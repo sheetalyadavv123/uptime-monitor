@@ -1,0 +1,16 @@
+# These are the libraries the app needs to run.
+# Versions are pinned (==) so everyone gets exactly the same, tested setup.
+# See docs/12-deployment.md for how to upgrade them safely.
+
+fastapi==0.163.1            # the web framework (our REST API)
+fastmcp==4.2.0              # the MCP server framework (lets AI tools use our app)
+uvicorn==0.54.0             # the server that actually runs FastAPI
+sqlalchemy[asyncio]==2.1.8   # talks to the database (the [asyncio] part adds async support)
+aiosqlite==0.22.1           # SQLite driver (used for local development and tests)
+asyncpg==0.32.0             # PostgreSQL driver (used in production)
+alembic==1.20.1             # database migrations (versioned table changes)
+pydantic-settings==2.16.3   # reads settings from environment variables
+httpx==0.28.1               # makes the HTTP requests that check websites
+pyjwt==2.15.1               # login tokens (JWT)
+pwdlib[argon2]==0.4.2       # safe password hashing
+email-validator==2.4.0      # lets Pydantic validate email addresses
