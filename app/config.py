@@ -17,6 +17,7 @@
 # Read more: docs/12-deployment.md
 # =============================================================================
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The default secret key. It is only OK for local development.
@@ -44,6 +45,17 @@ class Settings(BaseSettings):
     # For production use PostgreSQL, for example:
     #   postgresql+asyncpg://user:password@localhost:5432/uptime
     database_url: str = "sqlite+aiosqlite:///./uptime.db"
+
+    # Hosting platforms (Render, Heroku, Railway...) hand out URLs like
+    # "postgres://..." or "postgresql://...". We need the async driver, so we
+    # rewrite them to "postgresql+asyncpg://...".
+    @field_validator("database_url")
+    @classmethod
+    def _use_async_postgres_driver(cls, value: str) -> str:
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+asyncpg://" + value[len(prefix):]
+        return value
 
     # --- Security ------------------------------------------------------------
     # This secret is used to sign login tokens. Anyone who knows it can fake logins!
